@@ -1,2 +1,2 @@
 # graphy
-Lite module for graph.
+Lite package for graph.
