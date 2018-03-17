@@ -3,7 +3,7 @@ from .graph_traversal import GT
 from .path_problem import PT
 from .min_spanning_tree import MST
 from .shortest_path_problem import SP
-from .HE_problem import HE
+from .he_problem import HE
 from .domination import DM
 import numpy as np
 
