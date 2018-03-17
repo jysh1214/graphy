@@ -7,7 +7,7 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='graphy',
+    name='pygraph',
     version='0.1',
     description='Lite package for graph',
     long_description=readme,
