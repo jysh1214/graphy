@@ -1,256 +1,240 @@
-from .get_imformation import GI
-
-class DM:
+class GI():
     def __init__(self, adj_matrix, ins_matrix):
         self.Adjacency_Matrix = adj_matrix
         self.Insidence_Matrix = ins_matrix
         self.N = len(self.Adjacency_Matrix)
-    
-    ### Packing: Find Maximal ###
 
-    def clique(self):
+
+    def check_conn(self, v_a, v_b):
         """
+        Parameters:
+            v_a(int): Vertex No.
+
+            v_b(int): Vertex No.
+
         Returns:
-            Maximal clique
+            bool: Return True, if v_a and v_b is adjacent.
 
         Attention:
-            Maximal
-        """
-        # from get_information
-        gi = GI(self.Adjacency_Matrix, self.Insidence_Matrix)
+            Undirected graph difinition.
 
-        # check every vertex are connected with each orthers
-        def complete(vertex):
-            for k in range(len(temp_set)):
-                if not gi.check_conn(vertex, temp_set[k]):
-                    return False
-            
+        Raises:
+            ValueError, TypeError
+        """
+        if self.Adjacency_Matrix[v_a][v_b] != 0:
             return True
 
-        def clique_recursion(vertex):
-            nb = gi.get_nb(vertex)
-            for j in range(len(nb)):
-                if (not nb[j] in temp_set) and complete(nb[j]):
-                    temp_set.append(nb[j])
-                    clique_recursion(nb[j])
 
-
-        cliq_set = []
-        used_vertex = []
-        vertex = [i for i in range(self.N)]
-
-        temp_set = [] # local var.
-
-        for offset in range(self.N):
-            for b in range(self.N):
-                # use circular queue
-                i = (b+offset)%self.N
-                
-                if vertex[i] in used_vertex:
-                    continue
-
-                temp_set.append(vertex[i])
-                # find the clique contain vertex[i]
-                clique_recursion(vertex[i])
-                used_vertex = list(set(temp_set)|set(used_vertex))
-
-                temp = []
-                temp = put_all(temp_set, temp)
-                cliq_set.append(temp)
-
-                temp_set = []
-
-        max_ = 0
-        max_clique = 0
-        for i in range(len(cliq_set)):
-            if len(cliq_set[i]) > max_:
-                max_ = len(cliq_set[i])
-                max_clique = i
-
-        return cliq_set[max_clique]
-
-
-    def indp_set(self):
+    def get_degree(self, vertex):
         """
-        Returns:
-            Maximal independent set.
-
-        Attention:
-            Maximal
-        """
-        in_set = []
-        vertex = [i for i in range(self.N)]
-
-        # from get_imformation
-        gi = GI(self.Adjacency_Matrix, self.Insidence_Matrix)
-
-        for offset in range(self.N):
-            selected = []
-            non_selected = []
-
-            while len(selected)+len(non_selected) < self.N:
-                for b in range(self.N):
-                    # use circular queue
-                    i = (b+offset)%self.N
-                    if not vertex[i] in non_selected:
-                        selected.append(vertex[i])
-                        nb = gi.get_nb(vertex[i])
-                        non_selected = list(set(nb)|set(non_selected))
-
-            temp = []
-            temp = put_all(selected, temp)
-            in_set.append(temp)
-
-        max_ = 0
-        max_set = 0
-        for i in range(len(in_set)):
-            if len(in_set[i]) > max_:
-                max_ = len(in_set[i])
-                max_set = i
-
-        return in_set[max_set]
-
-
-    ### Covering: Find Minimal ###
-
-    def dominating_set(self):
-        """
-        Returns:
-            Minimal dominating set.
-
-        Attention:
-            Minimal
-        """
-        dom_set = []
-        vertex = [i for i in range(self.N)]
-
-        # from get_imformation
-        gi = GI(self.Adjacency_Matrix, self.Insidence_Matrix)
-
-        for offset in range(self.N):
-            selected = []
-            non_selected = []
-
-            while len(selected)+len(non_selected) < self.N:
-                for b in range(self.N):
-                    # use circular queue
-                    i = (b+offset)%self.N
-                    if not vertex[i] in non_selected:
-                        selected.append(vertex[i])
-                        nb = gi.get_nb(vertex[i])
-                        non_selected = list(set(nb)|set(non_selected))
-
-            temp = []
-            temp = put_all(selected, temp)
-            dom_set.append(temp)
-
-        min_ = self.N
-        min_set = 0
-        for i in range(len(dom_set)):
-            if len(dom_set[i]) < min_:
-                min_ = len(dom_set[i])
-                min_set = i
-
-        return dom_set[min_set]
-                    
-
-    def vertex_cover(self):
-        """
-        Method:
-            Greedy algorithm.
+        Parameters:
+            vertex(int): Vertex No.
 
         Returns:
-            Minimal vertex cover set.
+            self.degree[vertex](int): Degree of the input vertex.
 
         Attention:
-            Minimal
+            Undirected graph difinition.
+
+        Raises:
+            ValueError, TypeError
         """
-        selected = []
-        cov_edge = []
+        return self.get_in_degree(vertex)
 
-        # from get_imformation
-        gi = GI(self.Adjacency_Matrix, self.Insidence_Matrix)
 
-        degree = []
+    def get_in_degree(self, vertex):
+        """
+        """
+        in_degree = 0
         for i in range(self.N):
-            degree.append([i, gi.get_degree(i)]) # [vertex No, degree]
- 
-        degree = sorted(degree, key = lambda x: x[1], reverse = True)
+            if self.Adjacency_Matrix[i][vertex] != 0:
+                in_degree += 1
 
-        while len(cov_edge) < len(self.Insidence_Matrix[0]):
-            vertex = degree[0][0] # select max degree vertex
-            selected.append(vertex)
-            nb = gi.get_nb(vertex)
-
-            # remove selected vertex
-            degree.remove(degree[0])
-
-            for j in range(len(nb)):
-                temp_edge = gi.get_edge(vertex, nb[j])
-                cov_edge = list(set([temp_edge])|set(cov_edge))
-
-                # degree of neighbor vertex reduxce 1
-                for k in range(len(degree)):
-                    if degree[k][0] == nb[j]:
-                        degree[k][1] -= 1
-
-            # resort
-            degree = sorted(degree, key = lambda x: x[1], reverse = True)
-
-        return selected
+        return in_degree
 
 
-    def edge_cover(self):
+    def get_out_degree(self, vertex):
         """
+        """
+        out_degree = 0
+        for i in range(self.N):
+            if self.Adjacency_Matrix[vertex][i] != 0:
+                out_degree += 1
+
+        return out_degree
+
+
+    def get_nb(self, vertex):
+        """
+        Parameters:
+            vertex(int): Vertex No..
+
         Returns:
-            Minimal edge cover set.
+            nbs_list(list): All neighbors of the vertex. 
 
         Attention:
-            Minimal
-        """
-        selected = []
-        cov_ver = []
+            Undirected graph difinition.
 
-        # from get_imformation
-        gi = GI(self.Adjacency_Matrix, self.Insidence_Matrix)
-
-        # [edge No, vertex number of the edge]
-        e = len(self.Insidence_Matrix[0])
-        vertex_num = [[i, 2] for i in range(e)]
+        Raises:
+            ValueError, TypeError
         """
+        nbs_list = []
+        for i in range(len(self.Adjacency_Matrix)):
+            if self.Adjacency_Matrix[vertex][i] != 0:
+                nbs_list.append(i)
+
+        return nbs_list
+
+
+    def get_re(self, vertex):
+        """
+        Parameters:
+            vertex(int): Vertex No..
+
+        Returns:
+            nbs_list(list): All reachable vertices of the vertex. 
+
+        Attention:
+            Directed graph difinition.
+
+        Raises:
+            ValueError, TypeError
+        """
+        re_list = []
+        for i in range(len(self.Adjacency_Matrix)):
+            if self.Adjacency_Matrix[vertex][i] != 0:
+                re_list.append(i)
+
+        return re_list
+
+
+    def get_pre(self, vertex):
+        """
+        Parameters:
+            vertex(int): Vertex No..
+
+        Returns:
+            nbs_list(list): All predecessor vertices of the vertex. 
+
+        Attention:
+            Directed graph difinition.
+
+        Raises:
+            ValueError, TypeError
+        """
+        pre_list = []
+        for i in range(len(self.Adjacency_Matrix)):
+            if self.Adjacency_Matrix[i][vertex] != 0:
+                pre_list.append(i)
+
+        return pre_list
+
+
+    def get_edge(self, v_a, v_b):
+        """
+        Parameters:
+            v_a(int): Vertex No..
+
+            v_b(int): Vertex No..
+
+        Returns:
+            int.: Eage No. of two vertices.
+
+        Attention:
+            Two vertices must be adjacent.
+
+            Return a edge from v_a to v_b in directed graph.
+
+        Raises:
+            ValueError, TypeError
+        """
+        if self.Adjacency_Matrix[v_a][v_b] == 0:
+            return False
+
         for i in range(len(self.Insidence_Matrix[0])):
-            vertex_num.append([i, 2]) # [edge No, vertex number of the edge]
-        print(vertex_num)
+            if (self.Insidence_Matrix[v_a][i]==1) and\
+               (self.Insidence_Matrix[v_b][i]==1):
+                return i
+
+
+    def get_inter(self, edge_1, edge_2):
         """
+        Returns: Intersection verdex of two edge.
+        """
+        for i in range(self.N):
+            if self.Insidence_Matrix[i][edge_1] and \
+               self.Insidence_Matrix[i][edge_2]:
+                return 
 
-        while len(cov_ver) < self.N:
-            edge = vertex_num[0][0]
-            selected.append(edge)
 
-            [a, b] = gi.edge_term(edge)
-            cov_ver = list(set([a, b])|set(cov_ver))
+    def get_head(self, edge):
+        """
+        Parameters:
+            edge(int): Edge No.
 
-            def reduce_(vertex):
-                nb = gi.get_nb(vertex)
-                for i in range(len(nb)):
-                    temp_edge = gi.get_edge(vertex, nb[i])
-                    for j in range(len(vertex_num)):
-                        if vertex_num[j][0] == temp_edge:
-                            vertex_num[j][1] -= 1
-                            break
+        Returns:
+            int.: The head vertex of the edge.
 
+        Attention:
+            Directed graph difinition.
+
+        Raises:
+            ValueError, TypeError
+        """
+        (a, b) = self.edge_term(edge)
+        if self.Adjacency_Matrix[a][b] != 0:
+            return b
+        else:
+            return a
+
+
+    def get_tail(self, edge):
+        """
+        Parameters:
+            edge(int): Edge No.
+
+        Returns:
+            int.: The tail vertex of the edge.
+
+        Attention:
+            Directed graph difinition.
+
+        Raises:
+            ValueError, TypeError
+        """
+        (a, b) = self.edge_term(edge)
+        if self.Adjacency_Matrix[a][b] != 0:
+            return a
+        else:
+            return b
+
+
+    def get_weight(self, edge):
+        """
+        Parameters:
+            edge(int): Edge No..
+
+        Returns: Weight of the input edge.
+
+        Raises:
+            ValueError, TypeError
+        """
+        (v_a, v_b) = self.edge_term(edge)
+
+        if self.Adjacency_Matrix[v_a][v_b]:
+            return self.Adjacency_Matrix[v_a][v_b]
+        else:
+            return self.Adjacency_Matrix[v_b][v_a]
             
-            # number of vertex of terminal reduce 1
-            reduce_(a)
-            reduce_(b)
 
-            # sorted by number of vertex
-            vertex_num = sorted(vertex_num, key = lambda x: x[1], reverse = True)
-
-        return selected
-
-
-def put_all(a, b):
-    for i in a:
-        b.append(i)
-    return b
+    def edge_term(self, edge):
+        """
+        Attention:
+            Undirected graph difinition.
+        """
+        temp = []
+        for i in range(len(self.Insidence_Matrix)):
+            if self.Insidence_Matrix[i][edge] == 1:
+                temp.append(i)
+            if len(temp) == 2:
+                return temp
